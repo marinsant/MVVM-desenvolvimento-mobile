@@ -1,15 +1,23 @@
-import 'package:flutter/material.dart';
-
-class Transaction {
+class TransactionModel {
+  final int? id;
   final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
+  final double value;
+  final String date;
+  final String type; // 'Entrada' ou 'Saída'
 
-  Transaction({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
+  TransactionModel({this.id, required this.title, required this.value, required this.date, required this.type});
+
+  Map<String, dynamic> toMap() {
+    return {'id': id, 'title': title, 'value': value, 'date': date, 'type': type};
+  }
+
+  factory TransactionModel.fromMap(Map<String, dynamic> map) {
+    return TransactionModel(
+      id: map['id'],
+      title: map['title'],
+      value: (map['value'] as num).toDouble(),
+      date: map['date'],
+      type: map['type'],
+    );
+  }
 }

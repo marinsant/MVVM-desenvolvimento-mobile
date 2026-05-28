@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/auth_viewmodel.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -19,41 +20,31 @@ class _LoginViewState extends State<LoginView> {
     final authViewModel = context.watch<AuthViewModel>();
 
     return Scaffold(
+      appBar: AppBar(title: const Text("Criar Conta")),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                "Controle Financeiro",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: "Nome Completo", border: OutlineInputBorder()),
+                validator: (value) => value == null || value.isEmpty ? "Campo obrigatório" : null,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: "E-mail", border: OutlineInputBorder()),
-                validator: (value) {
-                  if (value == null || value.isEmpty || !value.contains('@')) {
-                    return "Insira um e-mail válido";
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || !value.contains('@') ? "E-mail inválido" : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(labelText: "Senha", border: OutlineInputBorder()),
-                validator: (value) {
-                  if (value == null || value.length < 4) {
-                    return "A senha deve ter pelo menos 4 caracteres";
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.length < 4 ? "Senha muito curta" : null,
               ),
               const SizedBox(height: 24),
               authViewModel.isLoading
@@ -62,25 +53,21 @@ class _LoginViewState extends State<LoginView> {
                       style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          final success = await context.read<AuthViewModel>().login(
+                          final success = await context.read<AuthViewModel>().register(
+                                _nameController.text,
                                 _emailController.text,
                                 _passwordController.text,
                               );
                           if (success && mounted) {
-                            Navigator.pushReplacementNamed(context, '/home');
-                          } else if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Usuário ou senha incorretos!")),
+                              const SnackBar(content: Text("Cadastro realizado com sucesso!")),
                             );
+                            Navigator.pop(context);
                           }
                         }
                       },
-                      child: const Text("Entrar"),
+                      child: const Text("Cadastrar"),
                     ),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/register'),
-                child: const Text("Não tem uma conta? Cadastre-se"),
-              ),
             ],
           ),
         ),
