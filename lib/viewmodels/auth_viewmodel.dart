@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../database/db_helper.dart';
 import '../models/user_model.dart';
+import '../database/db_helper.dart';
 
 class AuthViewModel extends ChangeNotifier {
   UserModel? _currentUser;
@@ -9,42 +9,59 @@ class AuthViewModel extends ChangeNotifier {
   UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
 
-  // Lógica de Login com Validação no Banco
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
 
-    final user = await DbHelper.instance.loginUser(email, password);
-    
-    _isLoading = false;
-    if (user != null) {
-      _currentUser = user;
-      notifyListeners();
-      return true; // Login com sucesso
+    try {
+      final userData = await DbHelper.instance.loginUser(email, password);
+      
+      if (userData != null) {
+        _currentUser = UserModel.fromMap(userData);
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Erro no login: $e");
     }
+
+    _isLoading = false;
     notifyListeners();
-    return false; // Falha no login
+    return false;
   }
 
-  // Lógica de Cadastro de Novo Usuário
-  Future<bool> register(String name, String email, String password) async {
+  Future<bool> register(UserModel newUser) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final newUser = UserModel(name: name, email: email, password: password);
-      await DbHelper.instance.registerUser(newUser);
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (_) {
-      _isLoading = false;
-      notifyListeners();
-      return false;
+      // 1. Validação prévia de e-mail existente
+      final emailExists = await DbHelper.instance.checkEmailExists(newUser.email);
+      if (emailExists) {
+        _isLoading = false;
+        notifyListeners();
+        return false; // Trava aqui e retorna falso para a View exibir o erro
+      }
+
+      // 2. Tenta inserir se passar pelo filtro
+      final result = await DbHelper.instance.registerUser(newUser.toMap());
+      
+      if (result > 0) {
+        _currentUser = newUser;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Erro no registro: $e");
     }
+
+    _isLoading = false;
+    notifyListeners();
+    return false;
   }
 
-  // Lógica de Deslogar
   void logout() {
     _currentUser = null;
     notifyListeners();
