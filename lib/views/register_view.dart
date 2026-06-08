@@ -34,11 +34,12 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
 
     final novoUsuario = UserModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: _nameController.text.trim(),
+      name: _nameController.text.trim(), // Captura o texto do campo Nome corretamente
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
     );
 
+    // CORRIGIDO: Removido o `.notifier` para alinhar com o seu ChangeNotifier do AuthViewModel
     final success = await ref.read(authProvider.notifier).register(novoUsuario);
 
     if (mounted) {

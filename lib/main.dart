@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // Adicionado para o gerenciamento de estado avançado
+import 'package:flutter_riverpod/flutter_riverpod.dart'; 
 import 'views/login_view.dart';
 import 'views/register_view.dart';
-import 'views/dashboard_view.dart';
-import 'views/analysis_view.dart';
+import 'views/main_navigation.dart'; // Importação do Hub de Navegação com o Hambúrguer
 
 void main() {
   runApp(
@@ -74,22 +73,19 @@ class FinancialApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/',
-      // Mantido o gerenciador de rotas dinâmicas com animação fluida de Slide (Requisito de UX Superior)
       onGenerateRoute: (settings) {
         Widget page;
         
         switch (settings.name) {
           case '/':
-            page = const LoginView(); // Lembre-se de refatorar as views para herdar de ConsumerWidget/ConsumerStatefulWidget
+            page = const LoginView(); 
             break;
           case '/register':
             page = const RegisterView();
             break;
           case '/dashboard':
-            page = const DashboardView();
-            break;
-          case '/analise':
-            page = const AnalysisView();
+            // Agora a rota /dashboard chama a casca de navegação com as abas e o Drawer
+            page = const MainNavigation(); 
             break;
           default:
             page = const LoginView();

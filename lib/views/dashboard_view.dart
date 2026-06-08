@@ -453,7 +453,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
               style: TextStyle(fontSize: 13, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
             ),
             Text(
-              authViewModel.currentUser?['nome'] ?? authViewModel.currentUser?['name'] ?? 'Mário',
+authViewModel.currentUser?['nome'] ?? authViewModel.currentUser?['name'] ?? 'Mário',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF0F2C3D)),
             ),
           ],
